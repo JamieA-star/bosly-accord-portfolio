@@ -1,0 +1,285 @@
+ Bosly Keep — Build Report
+May 18–28, 2026
+IDENTITY
+Name: Bosly Keep
+Tagline: Wealth that grows without costing the earth.
+Parent: Bosly ecosystem — standalone app, future integration with Bosly Finance.
+Mission: End financial exclusion. Make ethical wealth-building accessible to everyone, starting from £5. Empower billions of lives. End poverty by making capital access a right, not a privilege.
+Sibling Document: The Bosly Keep Trust — version-controlled at docs/THE-BOSLY-KEEP-TRUST.md and live at /trust.
+ROADMAP
+Phase 1 — Personal ISA (Now)
+James Arnott's personal ethical investment platform. Runs on Mac. ISA wrapper for tax-free growth. Manual broker execution based on Bosly Keep signals. Build track record and confidence.
+Phase 2 — Bosly Ltd Fund
+Deploy Bosly Keep to EC2 alongside Bosly. Corporate investment account. Fund tech projects by borrowing against the portfolio. Company tax treatment. Bridge to Bosly Finance for unified dashboard.
+Phase 3 — Open to Others
+User accounts with sovereign encryption (mirror Bosly Accord). £5 minimum micro-contributions. Pooled ethical fund. FCA authorisation. Community governance on ethical screening. The Bosly Keep Trust becomes the public constitution.
+ARCHITECTURE
+
+ - Framework: Next.js 15.5 (App Router)
+- Language: TypeScript 5.9
+- Database: SQLite + Prisma ORM 6.19 (Phase 1), PostgreSQL (Phase 2+)
+- Styling: Tailwind CSS 3.4 — Bosly design system (dark theme, emerald accents, cream text)
+- UI Components: Radix UI, Lucide React icons, Framer Motion
+- Charts: Recharts 3.2
+- Data Fetching: SWR 2.3, native fetch
+- Market Data: Yahoo Finance v8 chart API (free, no API key)
+- FX Conversion: frankfurter.app API (free, no API key, 1-hour cache)
+- Dev Server: localhost:3000
+- Location: [LOCAL_DEV_PATH]
+- EC2 Location: NOT YET DEPLOYED
+PROJECT STRUCTURE
+bosly-keep/
+├── app/
+│ ├── globals.css — Bosly dark theme (emerald, cream, surfaces, pills, sections)
+│ ├── layout.tsx — Root layout with NavBar
+│ ├── page.tsx — Homepage with live stats, top holdings, nav
+│ ├── portfolio/page.tsx — Dashboard: summary cards, chart, holdings, ISA card
+│ ├── signals/page.tsx — Trading engine signals + Deploy Capital planner
+│ ├── journal/page.tsx — Trade journal with deposit form and quick-sell buttons
+│ ├── borrow/page.tsx — Loan tracker with LTV warnings
+│ ├── ethics/page.tsx — Ethical oversight: all assets scored, watchlist, evidence
+│ ├── learn/page.tsx — Plain-English glossary (20 terms, 5 categories)
+│ ├── trust/page.tsx — The Bosly Keep Trust (public)
+│ └── api/
+
+ │ ├── portfolio/route.ts — GET portfolio summary + assets with GBP conversion
+│ ├── signals/route.ts — GET trading engine signals
+│ ├── trades/route.ts — GET/POST trade log with snapshot creation + GBP conversion
+│ ├── cash/route.ts — GET/POST cash transactions (deposits)
+│ ├── holdings/route.ts — GET current holdings with P&L
+│ ├── loans/route.ts — GET/POST loans
+│ ├── isa/route.ts — GET ISA allowance tracker with deposit history
+│ ├── deploy/route.ts — POST capital deployment plan
+│ ├── bridge/route.ts — GET Bosly Finance bridge API (future)
+│ ├── snapshots/route.ts — GET portfolio snapshots for chart
+│ ├── prices/route.ts — POST/GET live price updates + snapshot creation with GBP conversion
+│ └── esg/route.ts — GET ESG scores with methodology ├── components/
+│ ├── NavBar.tsx — Global nav
+│ ├── PortfolioChart.tsx — Recharts area chart (7D/30D/All toggle)
+│ ├── HoldingsList.tsx — Current holdings with P&L per position
+│ ├── ScenarioPanel.tsx — Inline modal: model deposits, loans, market changes
+│ ├── Tooltip.tsx — In-context hover explanations (dotted underline)
+│ └── ISACard.tsx — ISA allowance progress bar with expandable deposit history
+├── lib/
+│ ├── trading-engine.ts — Long-term buy/sell/review signal generator (GBP-converted)
+│ ├── capital-deployment.ts — Lump sum deployment planner (GBP-converted)
+│ ├── market-data.ts — Yahoo Finance price fetcher with EU/UK symbol mapping
+│ ├── currency.ts — frankfurter.app FX conversion (live GBP, 1hr cache, fallback rates)
+│ ├── education/glossary.ts — 20 plain-English explanations across 5 categories
+│ ├── utils.ts — cn() utility (clsx + tailwind-merge)
+
+ │ └── esg/scoring.ts — ESG scoring service (S&P Global, MSCI, Yahoo, manual fallback)
+├── prisma/
+│ ├── schema.prisma — 9 models: Asset, PricePoint, Trade, PortfolioSnapshot, CashTransaction, Settings, Loan, LoanRepayment, EsgScore
+│ └── seed.ts — Initial seed (10 assets + £1,000) ├── scripts/
+│ ├── seed-full-universe.ts — 40 assets across 16 sectors
+│ ├── update-prices.ts — Daily price fetcher + GBP-converted snapshot saver
+│ ├── fix-snapshots.ts — Snapshot recalculation with GBP conversion + quantity awareness
+│ └── cron-daily.sh — Cron wrapper (runs at 8am)
+├── docs/
+│ └── THE-BOSLY-KEEP-TRUST.md — Full Trust document
+├── package.json
+├── tailwind.config.ts — Bosly design tokens
+├── tsconfig.json
+├── .env — DATABASE_URL
+└── README.md
+```
+DATABASE SCHEMA
+Asset — ticker, name, type, market, currency, ethicalScore, ethicalCategory, ethicalNotes, esgRating, screenPassed, currentPrice, priceUpdatedAt, screeningNotes, lastReviewed, watchlisted
+PricePoint — assetId, date, open, close, high, low, volume (table exists but not yet populated — needed for historical chart reconstruction)
+Trade — assetId, type (buy/sell), quantity, price, totalCost, fees, currency, notes, strategy, manuallyExecuted, signalGeneratedAt, executedAt
+
+ PortfolioSnapshot — date, totalValue, cashBalance, investedValue, profitLoss, notes (all values now in GBP)
+CashTransaction — type (deposit/withdrawal/sell), amount, currency, notes, date (sell type added May 26 — trade proceeds are not new deposits)
+Settings — fundName, baseCurrency, ethicalMode
+Loan — name, amount, interestRate, termMonths, monthlyPayment, lender, startDate, endDate, status, notes
+LoanRepayment — loanId, amount, date, notes
+EsgScore — assetId, totalScore, environmental, social, governance, provider, reportUrl, lastUpdated, methodology
+DEVELOPMENT JOURNEY
+May 18-19, 2026: Bosly Keep v1.0–v2.0
+Built in a single extended session from a Python script on the desktop to a full Next.js investment platform. Initial universe: 46 assets across 18 sectors. Trading engine ported from a Python auto-invest script. Core features: portfolio dashboard, trade signals, trade journal, borrowing tracker, scenario planner, ethical oversight, ISA allowance tracker, in-context learning glossary, The Bosly Keep Trust.
+May 23, 2026: Bosly Keep v3.0 — Ethical Enforcement
+Six assets removed for specific, documented ethical violations:
+- TSLA (58) — Elon Musk governance, labour violations, SEC investigations
+- JKS (68) — Supply chain labour concerns in solar manufacturing - DOLE (66) — Supply chain labour practices in agriculture
+
+ - TKO (62) — Copper mining extraction impacts, Indigenous relations concerns
+- AMH (62) — Institutional housing, tenant relations and affordability concerns
+- INVH (60) — Institutionalising housing, tenant practice criticisms
+ESG scoring system built: provider-agnostic service with fallback chain (S&P Global → MSCI → Yahoo Finance → Bosly Manual). Scoring framework: Environmental 40%, Social 30%, Governance 20%, Mission Alignment 10%. Every score has a hover tooltip showing specific ethical rationale.
+Bugs fixed: ISA allowance logic clarified with expandable deposit history. Portfolio chart currency conversion fixed—values now from actual holdings × live prices. P&L calculation changed from totalValue - 1000 to totalValue - totalDeposited. Portfolio at £20,564.49, +2.8% return.
+May 24, 2026: Bosly Keep v4.0 — Trading Engine Redesign
+The engine was fundamentally rearchitected to align with Bosly Keep's long-term wealth philosophy. The original design used short-term trading logic (take-profit at +6%, stop-loss at -8%) that directly contradicted the app's core promise of long-term compounding.
+Philosophy:
+- Bosly Keep is for building wealth over years, not trading over days - A 6% price move is noise, not a reason to sell a good company
+- The best action with a winning investment is usually to do nothing - Selling should only happen when something fundamental changes—not when a price wiggles
+New Parameters:
+- Allocation per trade: 10% of available cash - Max trades per day: 5
+- Min funds threshold: £20
+
+ - Max price threshold: £100 GBP
+- Fractional shares: Enabled
+- Max portfolio weight per holding: 20% (triggers review)
+- Ethical score drop threshold: 15 points (triggers sell)
+- Review after gain: 25% (triggers "holding well" review, not sell) - Review after holding: 90 days (triggers time-based check-in)
+Signal Types:
+Buy — An ethical asset not yet owned. Spread across sectors, prioritised by ethical score. Plain-English reason explains the company, its ethical category, its score, and what buying means for cash and ownership.
+Sell — Only triggered by an ethical score drop of 15+ points. The company's behaviour has changed meaningfully and it may no longer belong in an ethical portfolio. Reason explains what dropped, by how much, and why it matters.
+Review — Two triggers: (1) A single holding exceeds 20% of total portfolio—a concentration risk nudge, not a quality judgement. (2) A holding has been in the portfolio for 90+ days—a routine check-in.
+Holding Well — A holding is up 25%+ since purchase. A celebration signal, not an instruction. Reinforces the long-term behaviour: winners should be left to compound. No sell button is shown.
+Removed:
+- ~~Stop loss (-8%)~~ — Short-term losses are normal. Selling locks them in
+- ~~Take profit (+6%)~~ — Cutting winners early destroys compounding
+Plain-English Design: Every signal answers three questions in language a first-time investor can understand: What are you suggesting? Why now? What happens if I say yes?
+Bugs fixed May 24:
+
+ - Sell signals felt like panic when multiple volatile stocks moved simultaneously—added "holding well" review signals and multi-sell banner
+- Signals were jargon-heavy—rewrote all reason strings in plain English - No consequence information—added "If you buy/sell..." explanations
+- Build errors from line-wrapped comments
+- Pre-existing type errors in currency.ts and esg/scoring.ts
+May 26-27, 2026: Currency & Cash System Fixes
+A systematic currency conversion bug was discovered: all asset prices were stored in their native currency (USD, DKK, GBP) but currentPrice values were being used without GBP conversion. This inflated portfolio values by ~35% (USD prices counted as GBP) and up to 8.6x for DKK assets.
+Files fixed across the entire codebase:
+- app/api/portfolio/route.ts — Now returns gbpPrice alongside currentPrice for every asset
+- app/api/trades/route.ts — Snapshot creation converts prices to GBP before calculating invested value
+- app/api/prices/route.ts — Already correct (was converting)
+- lib/trading-engine.ts — All signal prices and portfolio values in GBP
+- lib/capital-deployment.ts — Deployment prices in GBP
+- scripts/update-prices.ts — Snapshot creation uses GBP-converted prices × held quantities
+- app/api/bridge/route.ts — Cash balance includes sells
+- app/api/cash/route.ts — Cash balance includes sells (2 occurrences)
+Sell proceeds bug: When the trading engine executed a sell, it recorded proceeds as a deposit CashTransaction, inflating ISA allowance usage and P&L baseline. Fix: new cash transaction type sell created. Six historical sell transactions reclassified from deposit to sell in the database. All cash balance calculations updated to use (type === "deposit" || type === "sell") ? add : subtract.
+
+ Additional fixes:
+- P&L changed from hardcoded totalValue - 1000 to totalValue - sum of actual deposits across all snapshot creation points
+- Snapshot invested value changed from summing one unit per asset to heldQuantity × gbpPrice for each holding
+- Cash balance now correctly includes sell transactions in all 7 files that calculate it
+- Zero TypeScript compilation errors across entire codebase
+May 28, 2026: Bosly Keep v5.0 — Math Verified Clean
+All currency conversions verified across the full codebase. Portfolio status:
+- Total Value: £20,871.62
+- Cash Balance: £1,352.50
+- Profit/Loss: +£871.62 (+4.4%)
+- Total Deposited: £20,000.00
+- ISA: £20,000 used (2026/2027 fully subscribed) - Screened Assets: 40
+- Active Holdings: 23 positions
+- Snapshots: Building daily
+Dev script updated: Changed from "next dev" to "npx tsx scripts/update-prices.ts && next dev" — prices auto-update on dev server start. Duplicate snapshot prevention added: if a snapshot exists for today, skip update and start instantly.
+ETHICAL ASSET UNIVERSE
+40 assets across 16 sectors. Every asset has an ethical score (0-100), category, screening notes, and hover tooltip showing rationale.
+Exclusions (never):
+
+ Fossil fuels, weapons, tobacco, gambling, exploitative labour, predatory lending, environmental destruction.
+Active Sectors:
+| Sector | Assets | Score Range | |--------|--------|-------------|
+| Clean Energy | ICLN, NEE, ORSTED, BEP | 85-94 | | Solar | TAN, ENPH, FSLR | 80-86 |
+| Wind | RNW | 84 |
+| Energy Storage | LIT, STEM, QS | 68-76 |
+| Clean Transport | RIVN, JOBY | 72-74 |
+| Water | AWK, XYL, PNR | 76-88 |
+| Circular Economy | WM, RSG | 76-78 |
+| Sustainable Food | BYND, OTLY | 80-84 |
+| Green Buildings | JCI, OC, GRN | 74-82 |
+| Health | DXCM, TDOC, ALGN | 72-84 |
+| Education | DUOL, UDMY, CHGG | 74-86 |
+| Financial Inclusion | SOFI, PYPL | 72-74 |
+| Digital Sovereignty | NET, MDB | 70-82 |
+| Biodiversity | ECL, DAR | 74-86 |
+| Diversified | VWRL, ESGV | 60-82 |
+| Space for Earth | PL, ASTS | 62-78 |
+Watchlisted:
+PL (78 — space sector under review), ASTS (62 — pre-revenue, speculative), BYND (84 — cash burn), QS (68 — pre-revenue), VWRL (60 — broad ETF, contains borderline holdings).
+ESG SCORING SYSTEM
+- Provider-agnostic service at /lib/esg/scoring.ts
+- Fallback chain: S&P Global → MSCI → Yahoo Finance → Bosly Manual
+- API-ready: Plug in SPGLOBAL_API_KEY or MSCI_API_KEY env vars - Current state: Manual scores with full ethical rationale
+
+ - Scoring framework: Environmental 40%, Social 30%, Governance 20%, Mission alignment 10%
+- Transparency: Every score has a hover tooltip showing specific rationale
+KEY FEATURES
+Portfolio Dashboard: Total value, cash balance, P&L (against actual deposits), performance chart with GBP-converted values, holdings table with live prices and GBP equivalents, ISA allowance tracker with expandable deposit history.
+Trade Signals Page: Four signal categories with distinct visual treatment. Buy signals in emerald with consequence explanation. Sell signals in red with ethical score comparison. Review signals in blue with context. Holding Well signals in emerald with no action button. Deploy Capital planner with step-by-step buy sequence.
+Live Price Updates: /api/prices fetches all 40 assets from Yahoo Finance, converts to GBP via frankfurter.app, updates database, creates portfolio snapshot. Supports GET and POST.
+Portfolio Chart: Recharts area chart. Values from actual holdings × live prices in GBP. Shows total portfolio value with cash balance and invested value breakdown.
+P&L Calculation: Current total value minus total deposited amount. Uses real deposit history.
+In-Context Learning: Hover any dotted-underlined term for plain-English explanation. 20 glossary entries across 5 categories. Each asset score shows specific ethical rationale on hover.
+Ethical Oversight: 40 screened assets, 6 removed for violations. Every asset scored with evidence. Expandable detail view. Watchlist for borderline assets.
+
+ The Bosly Keep Trust: Public constitution at /trust. Defines what Bosly Keep invests in, what it costs, who can join, and what it will never do.
+BOSLY STYLING DNA
+- Dark background (#050505) with emerald radial gradient
+- Cream text (#F6F1E8) with soft (#DDD4C6) and dim (#B9AE9D) variants
+- Emerald accent (#10B981) for positive values and active states - Gold (#F4C95D), amber (#FBBF24), blue (#60A5FA), violet (#A78BFA), cyan (#22D3EE)
+- bosly-pill: 3D interactive elements with hover shimmer
+- bosly-section: Layered cards with gradient borders
+- bosly-surface: Base panel styling
+- System sans-serif font stack
+- WCAG AA colour contrast verified
+- Reduced motion support
+STARTUP COMMANDS
+```bash
+cd [LOCAL_DEV_PATH]
+npm install
+npx prisma db push
+npx tsx prisma/seed.ts
+npx tsx scripts/seed-full-universe.ts npx tsx scripts/update-prices.ts npm run dev
+# -> http://localhost:3000
+```
+CRON JOB
+```
+0 8 [LOCAL_DEV_PATH]/scripts/cron-daily.sh ```
+
+ Runs daily at 8am. Updates all prices via Yahoo Finance, converts to GBP, saves daily snapshot.
+BUGS FIXED — COMPLETE HISTORY
+May 23, 2026
+1. ISA allowance logic unclear — Added expandable deposit history showing date, amount, and notes
+2. Portfolio chart flatlined — Fixed currency conversion in snapshots, invested value from actual holdings × live prices
+3. P&L showing +£19,564 (incorrect) — Changed from totalValue - 1000 to totalValue - totalDeposited
+4. RNW missing price — Resolved by price update refresh
+5. Ethical scoring transparency — Added hover tooltips, built ESG scoring service with provider fallback chain
+6. Removed ethically problematic holdings — TSLA, JKS, DOLE, TKO, AMH, INVH unscreened
+May 24, 2026
+7. Trading engine contradicted long-term mission — Removed take-profit (+6%) and stop-loss (-8%)
+8. Sell signals felt like panic — Added "holding well" review signals and multi-sell banner
+9. Signals were jargon-heavy — Rewrote all signal reason strings in plain English
+10. No consequence information — Added "If you buy/sell..." explanations
+11. Build errors from line-wrapped comments — Fixed broken comment lines
+12. Pre-existing type errors — Fixed cachedRates null check, apiKey undefined guard, excluded scripts/ from build
+May 26-27, 2026 — Currency & Cash System
+13. Portfolio value inflated by ~35% — All USD/DKK prices treated as GBP. Fixed across 7 files
+
+ 14. Sell proceeds counted as deposits — Added new sell transaction type, reclassified 6 historical records
+15. P&L used hardcoded £1,000 baseline — Changed to sum of actual deposits
+16. Snapshot invested value summed one unit per asset — Fixed to multiply heldQuantity × gbpPrice
+17. Cash balance ignored sell transactions — Fixed in 4 files
+18. TypeScript compilation errors — Fixed missing toGBP import. Zero type errors across codebase
+June 3, 2026
+19. Chart stuck on May 28 — No snapshots since May 28. Manually created June 3 snapshot
+20. Triple-duplicate snapshots — Deleted two near-identical May 28 snapshots
+21. Duplicate June 3 snapshot — Deleted older of two
+22. Auto-update on dev startup — Changed dev script to run price update before server start
+23. Prevent duplicate daily snapshots — Added check: if snapshot exists for today, skip update
+FUTURE WORK
+1. Broker Integration / Actual Fill Prices — Trades recorded at Yahoo Finance prices, not broker fill prices. P&L is approximate.
+2. Historical Price Data (PricePoint Table) — Schema exists, table empty. Would enable historical chart reconstruction and backtesting. 3. Automated Ethical Score Monitoring — S&P Global API key would automate updates. No system currently detects real-world violations between manual reviews.
+4. Transaction Cost Modeling — Broker fees, FX spreads, stamp duty not reflected in P&L.
+5. ISA Withdrawal Warnings — UK ISA rules: withdrawn allowance cannot be replaced in same tax year.
+6. Deployment (EC2) — Copy to EC2, switch to PostgreSQL, set up PM2, update Bosly Finance bridge.
+
+ 7. Financial Quality Overlay — Add profitability, revenue growth, and debt/equity filters.
+PRICING MODEL (FUTURE)
+- Bosly subscribers: Bosly Keep included, no extra fee
+- Non-Bosly users: Small monthly subscription
+- Accounts under £500: Free
+- Fund stewardship (Phase 2+): Capped at £50/year regardless of size - No percentages, no hidden fees, no extraction, no selling data
+-WHAT BOSLY KEEP WILL NEVER DO
+- Invest in things that harm people or the planet - Sell or share your personal data
+- Take hidden fees
+- Lock you in or stop you withdrawing
+- Treat bigger contributors better than smaller ones - Create fake urgency or pressure
+- Promise guaranteed returns
+- Use confusing language to hide things
+- Compromise on security or privacy
+- Forget why it exists
+- Tell you to sell just because a price moved
+Built by James Arnott, with AI assistance. May 18–28, 2026. From a Python script on the desktop to a full Next.js ethical investment platform. Trading engine rebuilt to honour long-term wealth over short-term noise. All sovereign. All ethical. All Bosly Keep.
