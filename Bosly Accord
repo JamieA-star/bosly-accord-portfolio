@@ -1,0 +1,408 @@
+Bosly Accord — Report
+Built by: James Arnott, with AI assistance
+Pronouns: They/them
+Status: Live, single-user production application
+Available for: Contract and freelance work — encryption architecture, AI integration, Next.js production systems
+What Bosly Is
+Bosly is a digital butler—an AI-powered personal operating system. Messages come in → Bosly classifies them → they become tasks, calendar events, or invoices → user acts. The app is designed for anyone to manage their digital life: a gardener, a freelancer, a parent.
+Beneath the application layer, Bosly is a liberation architecture disguised as a productivity app. The mission: empower every individual to control their own data. No government database. No corporate cloud. Not even Bosly's creator.
+Tagline: Your digital butler, in accord.
+The Accord
+Bosly Accord v1.0.0 — Ratified May 13, 2026. Located at .data/governor/bosly-accord.md. 12 articles, 398 lines. Single source of truth for all governance.
+Originally drafted as "Bosly Constitution," renamed to "Accord" on May 17 across 14 references in 5 files. "In accord" works on three levels: agreement and harmony, musical resolution, and a quiet status signal: "My AI and I are in accord."
+Twelve Articles:
+Sovereign Data Architecture (zero-access E2E encryption) Quantum Resistance (hybrid post-quantum + classical)
+User Identity and Access (Face ID, recovery phrases, duress mode) Jurisdiction and Legal Compliance
+  
+ AI and Learning (client-side processing, opt-in sharing)
+Shared Spaces (encrypted bridges between sovereign vaults) Data After Cancellation (90-day retention, permanent deletion) Legacy Access (inactive account trigger, legacy contacts) Transparency and Trust (open source encryption, warrant canary) Accessibility and Design (calm by design, inclusive language) Governance (creator-owned, amendment process)
+The Long Trajectory (Phase 1-5+ roadmap)
+February–April 2026: Foundations
+The early months established the core architecture: Next.js 14 on AWS EC2 with PostgreSQL, Prisma, PM2, and Nginx. The app went through multiple build crises—database schema mismatches, authentication system conflicts, static asset deployment failures, and the infamous "environment variable hell" where a system-wide env file contained a rogue SQLite URL.
+Key early milestones:
+WhatsApp integration with AI operators for lead detection
+8-step onboarding wizard built, then completely scrapped and replaced
+Auth system consolidated from two competing cookie systems to a single session-based system
+Production build stabilised after ~12 hours of debugging across multiple sessions
+April 17, 2026: Bosly Gov v1 — Self-Awareness Begins
+The first Bosly Governor script was built—a bash script that could audit system health, diagnose issues, and propose fixes with explicit user consent. This established the governance pattern that would evolve throughout the project.
+   
+ April 19, 2026: Browser vs Curl Reality
+A subtle bug was discovered and documented: browsers reject Set-Cookie from 303 redirect responses, while curl does not. This was the root cause of a two-week "Session expired" bug. The fix changed the API to return 200 JSON with redirectTo and client-side router.push(). Bosly Gov learnt its first lesson: always check the Application tab for cookies before concluding "backend works."
+April 27, 2026: Infrastructure Migration
+After 91 days of uptime, the EC2 instance failed to reboot due to a kernel 6.1 network driver bug on Amazon Linux 2023. The entire application was migrated to Ubuntu 24.04 LTS (kernel 6.17) on a t3.medium with a new Elastic IP. Lesson: stop/start gets fresh hardware; reboot keeps the same kernel.
+April 29, 2026: IMAP Email Integration
+The email pipeline was built—IMAP reading via external provider, SMTP sending with consent gates. A critical strategic insight emerged: IMAP with app-specific passwords bypasses almost all platform OAuth gatekeeping. Google, Outlook, iCloud, and custom domains all work with the same code by changing host, port, and credentials.
+May 2-3, 2026: External Integrations
+Apple iCloud credentials generated and stored
+Google OAuth redirect URI fixed (was hardcoded to localhost:3000) Same localhost issue identified in Microsoft, Facebook, and billing routes Email sync fully working after multiple rounds of IMAP debugging
+Prisma schema expanded with 10+ missing fields on the Card model
+May 4, 2026: Bosly Gov v2.1 — Hardened
+The Governor was significantly upgraded:
+    
+ Task queue system: 25 tasks tracked, 7 completed
+Precision patch engine: safe, reversible file patching with backup/verify/undo Smart APPLY handler: consent gate that blocks dangerous file modifications Governor bug fixes: sed delimiter issues, task label sanitisation
+Chat bubble constrained: system prompt patched to forbid database operations
+May 5, 2026: Security Hardening — 112 Tasks Complete
+A comprehensive security transformation:
+Anti-coercion prompts on both chat widget and Governor Output sanitisation stripping secrets from LLM responses Email outbox with 5-minute delay and cancel Break-glass lockdown command
+Secrets audit: credentials found in PM2 logs, git history, shell history, old backups—all scrubbed
+File integrity monitoring with daily hashing
+API data isolation audit: 169 routes reviewed
+Rate limiting: split into auth, AI, and general buckets Laptop backups encrypted with GPG AES-256 Privacy policy updated for AI processing disclosure
+May 6, 2026: Trust Features — All 112 Complete
+User-visible trust features built:
+Privacy Shield: one-click blur of sensitive content (Ctrl+Shift+H)
+  
+ Capability toggles: Green/Amber/Red/Off per domain Reply preview with editing and reasoning display 60-second undo on all major actions
+First-time contact confirmation
+Financial consent warnings Activity feed with pagination Trust Centre dashboard
+Public /safety transparency page WCAG 2.1 AA accessibility audit
+May 9, 2026: Polish & Verification
+Screenshot bugs fixed (duplicate inbox entries, Google noreply classified as leads)
+Middleware crash fixed (missing path/url declarations)AI safety checksum: 5/5 dangerous prompts correctly refused
+Backend user journey audit: 83 verification points across 6 phases, all passing Sustainability optimisations (email sync 5min→15min, log rotation, cache headers) Calmness components added (skeleton loading, soft 404)
+May 10, 2026: Critical Infrastructure Fixes
+Static assets 404 fixed—created automated deploy script
+iOS PWA session persistence fixed—all cookies changed to SameSite=None Face ID / Passkey authentication built and tested
+Board page cards appearing—status vs stage field mismatch fixed
+  
+ Workflow agreement established: capture at light speed, user tells outcome not command, trust the radar
+May 12, 2026: Single Surface Foundation
+- Rate limiter fixed to never block page navigation
+- Delete buttons added to board cards and inbox messages
+- PageHeader component standardised across all pages
+- ICS calendar import built
+- Dead JSONL inbox code removed
+- Long-term vision documented: Phase 1-5+ roadmap, sovereign data vault
+May 13, 2026: The Accord Ratified
+The Bosly Accord v1.0.0 was ratified. Governance documentation consolidated—four documents removed as they were subsumed under the Accord. The encryption pipeline was built: 520 lines of TypeScript implementing hybrid Kyber-1024 + X25519 key generation, AES-256-GCM vault encryption, 24-word recovery phrases, and IndexedDB key storage where private keys never leave the device. Passwordless signup flow with key ceremony.
+May 15, 2026: Zero-Access Encryption
+Server-side encryption deleted. In its place: a session key store that lives entirely in memory with TTL expiry, keys never touching disk, lost on server restart requiring re-authorisation. The email pipeline rewired end-to-end: encrypted passwords stored as client-encrypted blobs, decrypted via session key only when needed, message content encrypted before database storage. The server is now a blind courier.
+Deterministic key derivation fixed—recovery phrases now actually recover keys via HKDF. Key ceremony now challenges 3 random word positions instead of the cryptographically weak "first 4 + last 4" check. Duress mode with independent keypair and silent alert. Shared spaces with bridge encryption. Legacy access with four
+   
+ modes. Warrant canary with HMAC-SHA256 signing. Constitutional delivery: ~10% → ~65%.
+May 17, 2026: "In Accord" — Visual Standardisation
+The language shift from "Constitution" to "Accord" completed across all 14 references. Tagline "Your digital butler, in accord" deployed across 7 surfaces including email signatures. Every page standardised with the workspace design system: BackArrow navigation, bosly-section containers with accent glows, consistent heading patterns, per-page accent colours.
+Calendar fully rebuilt: month grid, day panel, job editor with auto-calculated labour, extras line items, receipt upload, invoice modal. Finance rebuilt: overview cards, income/expense tracking, receipt upload, tax alerts. Invoicing restored with branded emails. Chat rebuilt with voice input, camera capture, 9-intent classifier working without OpenAI. Dead code sweep: 20+ page directories, 27 orphaned components, 9 dead API routes removed. Audit score: 89% with 25 pass, 0 warn, 0 fail.
+May 19, 2026: Bosly Keep v2.0
+A separate ethical investment platform was built in a single session: 46 screened assets across 18 sectors, trading engine ported from Python, capital deployment planner, portfolio dashboard, ISA allowance tracker, The Bosly Keep Trust constitution. Bosly DNA throughout—same design tokens, same ethical spine.
+May 20, 2026: Single Surface Architecture
+The entire application frontend was consolidated into a single scrollable workspace. Nine separate page routes deleted, seven interactive pills built. Everything happens in the scroll—no page-hopping. Language neutralised: "Lead" → "Incoming," "Job/Task" → "Active." No demo personas, no profession-specific examples. Chat becomes a floating modal. Navigation model radically simplified: workspace is the only dashboard surface.
+May 23, 2026: Encryption & Branding
+Branding settings expanded to 11 fields including logo upload. Finance pill gained full invoice creation and management. Calendar import working for iCloud, Google, and
+    
+ Outlook. Key ceremony fixed to store real entropy—'pending-biometric-encryption' placeholder replaced. MailKeyAutoUnlock component built for client-side AES key derivation. Server-side key fallback for email sync. Audit script updated for pill-based architecture.
+May 24, 2026: Signup Journey Overhaul
+The entire signup flow was rebuilt from first principles:
+- Email-only landing page with device-generated 24-character password
+- Password manager integration triggers native Face ID/fingerprint save
+- Key ceremony opens with plain-English intro before generating anything - AES-256-GCM replaced X25519 (Safari compatibility)
+- Recovery phrase displayed in 4 groups of 6 words
+- "Save to password manager" via PasswordCredential API
+- Onboarding reduced to single screen with 5 neutral options
+- User flow: 4 page loads, approximately 2 minutes from ad to workspace
+Global search via Cmd+K added. Contacts became full relationship hub. Source badges on incoming cards. Trust Centre got live data and public APIs. Database wiped for fresh start. PM2 audit detection fixed. Deploy script fixed.
+Bosly Accord: Signup flow hardened—session cookie now created immediately at signup, eliminating the sign-in gap. Workspace gained time-aware greetings and proper empty states for every pill. Settings rebuilt as expandable pills. Email connections use honest IMAP messaging. Calendar import works for all three providers. Chatbot rebuilt as slide-up conversation panel. Add to Home Screen with gentle prompt.
+Strategic direction set: "Until then, Bosly is a beautiful lobby with no rooms behind the doors. Build the inbound mail server. Watch a real user. The social pill is the sleeper. Stay on the EC2 instance."
+  
+ May 30, 2026: Bosly Became a Product
+Inbound SMTP server built from scratch using Node's net module. IMAP sync cron re-enabled. Health endpoint fixed to tell the truth—all 9 features now report "active." Social pill transformed from placeholder to live Facebook OAuth. Every "coming soon" removed from the codebase. Audit score: 89%, zero warnings.
+Tier model simplified: Bosly (free, everything except AI) and Bosly Accord (£15/month, AI features). All AI endpoints gated. Sign-in page redesigned. Landing page checks for existing sessions. Key ceremony simplified—PasswordCredential.store() removed because it silently failed. Settings redesigned mobile-first across all seven sections.
+Invoice scanner built: complete pipeline scanning Sent folder, extracting invoice data, creating contacts and invoices. 1,361 calendar events imported from ICS. All three OAuth providers confirmed configured. Warrant canary refreshed. PM2 logs cleaned. GDPR region fixed—GB removed from EU count.
+Bosly aims to be the most honest product on the market.
+May 31, 2026: Bosly Became a Tool
+IMAP sync was broken—cron job silently skipped every account because decryptWithSessionKey failed. Five duplicate email connections with plain-text passwords discovered in the database. Fixed with server-side encryption pipeline. Inbox pill rewritten: messages now show bodies, dismiss works, next message auto-selects. CSS static files fixed—standalone build wasn't copying them.
+Invoice scanner rebuilt after discovering extractions were completely wrong: invoice numbers were word fragments, amounts were all £0 (parsing HTML where text was empty), client names were always the sender. Fixed by passing recipient as client, using email date, falling back to HTML, and writing patterns specific to the user's invoice format. Scanner found 25 real contacts from 29 unique client emails.
+Manual invoice entry via chat and QuickAdd bar. Chat learnt client lookup—"tell me about (client name)" works. Calendar linked to contacts. QuickAdd routes to invoice vs card based on content. Key ceremony salt persistence fixed. "The difference between a product and a tool: a product looks good in a demo; a tool works when you're tired, on your phone, with real clients waiting."
+  
+ June 1, 2026: The Gaslighting Fix
+Discovered Bosly chat was gaslighting—saying "I've added an appointment" when nothing was created. Root cause: the calendar API was broken in four separate ways and had never worked. Non-existent fields (provider, sourceEventId). Missing required fields (source). The chat's handleAddInvoice called a non-existent endpoint.
+Calendar API rewritten and verified with curl. Chat route got new handleAddEvent function with day/time expression parsing and client name matching. Invoice creation redirected to working endpoint. Bosly Gov explored but found too limited for debugging—blocks cat, find, grep on source files.
+June 2, 2026: The Brain Transplant
+The regex-based intent matching that caused gaslighting was ripped out and replaced with an LLM-first architecture. The chat route now sends the user's message to the LLM with context about calendar, contacts, and invoices, and lets the model decide which of 10 action handlers to invoke. "Rebook (client name) for the same time every Wednesday for the rest of June" works—because the LLM understands natural language, not because any regex pattern matched.
+Recurring events system built with recurringGroupId, edit/delete with scope (this event or all future). Timezone handling fixed—UTC server vs UK browser. Contacts transformed from flat list into rich client profiles with business/personal distinction, stats panels, inline editing, and delete. Dashboard metrics rewritten to reflect real data. 5,634 garbage £0 invoices from unattended scanner cron purged. Infrastructure diagnosed: the mounted drive was causing every "it worked then it didn't" moment. Build and deploy must happen on local EC2 disk.
+June 3, 2026: Project to Usable Tool
+Session opened with a five-point health check before any code was written—discipline that was new. Deploy pipeline finally diagnosed correctly: .next/standalone doesn't contain .next/—the static/ and server/ directories must be copied alongside it. Invoice upload pipeline debugged end-to-end with real .docx files. Contact delete fixed (stale build cache tree-shaking the DELETE export).
+Proactive features added: "Bosly Says" dashboard insights (overdue invoices, unbilled clients, no upcoming visits), and chat memory with ChatMemory table for conversation persistence across sessions. Calendar timezone wired to user settings. Active pill now shows real calendar visits. Contacts pill enriched with client
+  
+ summaries. Build pipeline established: rm -rf .next before every build, prisma generate before next build, Python for complex edits not sed.
+June 4, 2026: Bosly Gov v3 — The Copilot
+Bosly Gov transformed from a static audit script into a conversational Copilot with natural language triggers: health, what needs fixing, diagnose, disk space, clean, accord, check, backup, evolve. The diagnosis engine parses PM2 error logs, cross-references against Prisma schema, finds exact source lines, proposes fixes, and offers to apply through a full build-deploy pipeline. All local, no external AI needed for common errors.
+Bosly Chat v2 rebuilt with tool-calling architecture—the LLM receives the full database schema and decides which tools to invoke (db_query, api_call), chaining calls to answer questions without hand-coded action handlers. Strategic reflection session clarified pricing (£15/month Accord), the SAR automation pipeline for data sovereignty, and the medical application informed by the founder's experience of losing their mother to NHS failures.
+June 6, 2026: Test User Preparation
+Disk cleaned from 84% to 67%. Accord compliance brought from 75% to 100% by updating warrant canary and creating crypto barrel file. Codebase simplified to single symlinked source of truth. Universal system prompt written with Observe → Connect → Flag → Act loop.
+June 7, 2026: Bosly Gov v2.1 & Universal Chat Engine
+Morning session: Chat route rewritten with neutral system prompt, intent classifier (disruption, query, action, general chat), conversational rhythm (Observe → Connect → Flag → Act), max 3 tool loops, and explicit Prisma syntax examples to prevent malformed queries. Email search tool added. Multi-account email support with tier limits. Email cache encryption at rest. Deploy pipeline fixed with comprehensive ecosystem config. Bosly Gov deploy and build commands added. Hydration errors (#418) fixed across all components by specifying locale and timezone on every toLocaleString call.
+Evening session: Bosly Gov upgraded to v2.1 with hybrid architecture—keywords for execution (fast, reliable, local scripts), LLM fallback for smart guidance when no
+   
+ keyword matches. The bosly-build sed disaster was contained, ContactsPill restored. Lesson: regex-based code generation is fragile; needs proper TSX AST parser.
+June 8, 2026: Test-User-Ready
+ContactsPill and InboxPill redesigned to v2 with Work/Personal pattern, scrollable windows showing four items at a time, Bosly-styled badges replacing all emojis. Multi-account email architecture proven: external provider for work, iCloud for personal, both syncing. IMAP worker rewritten to fetch UNSEEN messages. Microsoft OAuth2 fully built but blocked by Azure's broken personal account support. Meta Facebook OAuth built, pending business verification. Both documented honestly—no fake "coming soon." First test user invited.
+June 9, 2026: Real-World Testing
+IncomingPill merged into ActivePill—one unified "what's on my plate" view with calendar events and tasks. Past events auto-clear. Inbox dismiss persistence fixed with cache v3 (dismissedUids). Multi-account inbox merge fixed—iCloud messages now visible alongside external provider. Contact delete button added with two-step confirmation. Contact edit crashes fixed (missing state variables, Prisma Decimal→Number conversion). Chat icon and static assets permanently fixed via outputFileTracingIncludes.
+Chat assistant end-to-end tested with real scenario: cancel (client name) appointment due to car breakdown. Exposed and fixed: misspelt contact name, missing clientName on calendar event, email send missing type: "custom", system prompt searching wrong database fields. IMAP UID bug fixed—worker was storing sequence numbers as UIDs. Logo upload pipeline fixed (EBS + public/ save, middleware bypass, body-locked error). Branding signature and Bosly footer on all sent emails. IMAP APPEND for Sent Items copy.
+June 10, 2026: Production Hardening
+Safe deploy pipeline built with pre-flight checks, build verification, and automated smoke tests (6 tests: database, contacts, calendar, cards, email accounts, inbox cache—all passing). Activity heartbeat system with ActivityEvent model for tracking real usage. Inbox hardened with IMAP SEEN flag sync, error states with retry, and pull-to-refresh. Feedback loop added to chat drawer with bosly feedback command. AI reply 500 fixed (wrong API method), inbox reply field names fixed, quick-add Prisma schema mismatches fixed, rate limiting bumped for AI features.
+   
+  Current Architecture (June 10, 2026)
+Pages
+| Route | Purpose |
+| / | Landing page with session check, email-only signup | /signin | Sign-in with native Face ID autofill
+| /signin/recover | Recovery phrase sign-in
+| /signup/keys | Key ceremony (24 words, verify 3)
+| /onboarding | Single-screen preferences
+| /workspace | Single dashboard surface
+| /settings | Expandable pills, 7 sections
+| /transparency | Warrant canary
+| /privacy, /terms, /safety, /support | Public pages
+Workspace Pills (top to bottom)
+1. Greeting — Time-aware, calm
+2. Quick Add Bar — Cmd+K global search, creates cards or invoices
+3. Metrics Row — This Week, Today, Total Billed, Outstanding, Contacts, Next Visit 4. Active Pill — Calendar events (next 7 days) + tasks, scrollable, past auto-hide
+5. Inbox Pill — Multi-account merged email, dismiss persistent, Work/Personal filter 6. Calendar Pill — Month grid, client detection, recurring events, timezone-aware
+
+ 7. Contacts Pill — Rich profiles, business/personal, edit, delete, stats, upload 8. Finance Pill** — Transactions + Invoices tabs, per-invoice actions
+9. Social Pill — Facebook OAuth (awaiting external approval)
+10. Settings summary— Deep-link chips to full settings
+11. Trust Centre — Live audit score, warrant canary status
+12. Bosly Says — Proactive insights (overdue, unbilled, inactive)
+13. Footer — Privacy, Terms, Safety, Support links
+Navigation Model
+- Workspace is the only dashboard surface—no page-hopping
+- Chat opens as floating slide-up panel (bottom-right button)
+- Settings is the only pill that opens a separate page
+Design System
+- Dark background #050505, cream text #F6F1E8
+- Accent colours: Emerald (Inbox, Active), Amber (Active items), Violet (Calendar, Social), Gold (Finance), Rose (Legacy), Cream-soft (Profile)
+- No cyan. No red alerts. No emojis.
+- Consistent heading: label (10px uppercase) + title (2xl semibold) + subtitle (13px cream-dim)
+- All pills use bosly-section + bosly-pill with accent glow - WCAG AA verified. Reduced motion support.
+Tier Model
+- Bosly — Free. Everything except AI features.
+
+ - Bosly Accord — £15/month. AI replies, suggestions, open chat, calendar queries, proactive insights.
+Data Flow
+Source on mounted drive → synced to build directory (EC2 local disk) → built with npm run build (after rm -rf .next && prisma generate) → deployed to production directory → PM2 runs from there → Nginx proxies from 80/443.
+Database
+- PostgreSQL on cloud block storage, 1 user (Accord tier), 15-17 contacts, ~1,400 calendar events
+- Email: 2 connected accounts (work and personal), merged inbox - ChatMemory table for conversation persistence
+- ActivityEvent table for usage tracking
+PM2 Processes
+- bosly — Next.js 15.5.15, fork mode - bosly-smtp — SMTP listener
+- pm2-logrotate — Log management Cron Jobs
+- 2am: Database backup (GPG encrypted, 7-day retention) - Every 10min: IMAP email sync
+- 8am: Daily health checks
+Encryption
+- Zero-access: session keys in memory only, never touch disk - Email credentials encrypted at rest (AES-256-GCM)
+- Message content encrypted before database storage
+
+ - Recovery phrases deterministically derive keys via HKDF - Duress mode with independent keypair
+Security Posture
+- SSH key-only, no root password
+- Rate limiting: Auth 20/min, AI 100/min, General 200/15min - Failed login monitoring with auto-block
+- File integrity monitoring on critical files
+- Break-glass lockdown command
+- Warrant canary with HMAC-SHA256 signing
+- All OAuth redirect URIs locked to production domain
+Bosly Gov — The Copilot
+Command, What it does
+| bosly | Launch conversational governor
+| health | Full system overview
+| diagnose / what needs fixing, Parse error logs, find source, propose fix | audit | 15-section governance audit
+| accord | Accord compliance check
+| disk space / clean, Disk analysis and safe cleanup
+| check / validate, Pre-build schema validation
+| evolve / what next, Usage analysis and feature suggestions
+| deploy | Build + deploy to production
+| backup | Backup Gov scripts to persistent storage
+
+ Key Lessons Learned
+1. Browser vs curl: Browsers reject Set-Cookie from 303 redirects. Always check the Application tab.
+2. API response shape matters: {user: {email}} is not {email}. Verify actual structure.
+3. Database column names vs code: status in schema, stage in code—silently breaks pages.
+4. Regex cannot be a natural language interface. LLM-first architecture is the correct foundation.
+5. The mount point is the invisible enemy. Build and deploy on local EC2 disk, not mounted drives.
+6. rm -rf .next before every build. Stale caches cause Prisma client staleness and tree-shaken exports.
+7. PM2 restart is not a fresh start. Use pm2 delete + pm2 start for compiled changes. 8. Never let a scanner cron run unattended. 5,634 garbage invoices were created.
+9. Timezones are the hardest problem in computing. UTC server, UK browser, ISO parsing—every layer risks a +1 hour shift.
+10. Prisma Decimal objects crash React number inputs. Always convert with Number() and guard NaN.
+11. IMAP sequence numbers ≠ UIDs. Storing seqno as uid breaks message body fetching.
+12. Secrets are everywhere. One cat .env.local exposes keys propagated to logs, git, shell history, and backups.
+13. Design for trust from day one. Building safety features retroactively is harder than designing them in.
+14. Bash heredoc fails on TypeScript. Use Python for complex file writes.
+
+ 15. Sed is not for JSX. Complete file replacement or Python exact string matching is safer.
+16. Shipping beats perfect. The app is live despite two major platform integrations being blocked externally.
+17. The user knows when something is gaslighting them. "I've added that appointment" when nothing happened was worse than "I can't do that."
+18. Calm is not cosmetic. It's the interface for wide-bandwidth minds
+Workflow Agreement
+1. Capture at light speed. Sort, prioritise, present plan. User approves, we execute. 2. Stuck after 40 minutes? Present options concisely. User stays in control.
+3. User tells outcome, not command.
+4. This report is the handoff. Every new chat starts here.
+5. Trust the radar on UI/UX. User's somatic pattern-matching is faster than logic. 6. Build for the long trajectory. Every decision is training data for Phase 3/4.
+7. Calm ethos is not cosmetic. It's the interface for wide-bandwidth minds
+Founding principle: no external investors. Self-funding through operating businesses. Mission: lift millions out of poverty by democratising access to tools currently controlled by states and corporations.
+Session Summary — 14 June 2026
+Problem: Bosly Gov's `evolve` command wasn't picking up chat feedback. Investigation revealed deeper infrastructure chaos.
+What was Found:
+1. Chat feedback was stored but invisible — 77 interactions in ActivityLog with action: 'chat_interaction', but no distinction between regular chat and user feedback. The
+ 
+ per-message feedback input sent data to logs/feedback.jsonl which was never created. bosly-evolve only queried ActivityLog, never the JSONL file.
+2. Directory naming was confusing — no clear distinction between source, production, and runtime data.
+3. Secrets were scattered everywhere — .env.local contained all credentials and was sourced by multiple scripts. PM2 logs contained secrets. Shell history contained secrets. Backup script had a hardcoded database password.
+Previous Housekeeping (Completed Before This Session):
+Renamed and consolidated the filesystem into four clear directories: code (source), live (production build), data (runtime data, governor state, inbox cache, transcripts), and backups (GPG-encrypted database dumps).
+Moved PM2 to serve from the persistent volume. Locked down secrets — single .env.production (chmod 600), shredded old .env files, scrubbed .bash_history, flushed PM2 logs, created bosly-secrets audit script. Fixed 40+ Bosly Gov scripts. Fixed broken symlinks. Rotated all manageable secrets.
+What Was Built:
+1. Feedback Pipeline — Closed the Loop:
+- ChatDrawer.tsx: Feedback input now sends to /api/chat with [Feedback] prefix instead of dead /api/feedback JSONL endpoint
+- Placeholder changed from "What's working? What's not?" to "Did I get that right?"
+- chat/route.ts: logInteraction now detects [Feedback] prefix and tags source: "chat_feedback" in ActivityLog details
+- bosly-evolve: New section — user feedback count, recent feedback display, failure theme detection (Calendar, Invoicing, AI understanding)
+- Flow: User types feedback → ActivityLog (chat_feedback source) → bosly-evolve surfaces failure themes → bosly-diagnose traces root causes
+2. Auth Cookie Merge:
+- Merged legacy cookie into signed session token (now contains {v: 2, email, uid, iat}) - Updated lib/auth.ts: Added verifySessionToken() function
+
+ - Updated lib/session.ts: getSession() verifies session token first, falls back to legacy cookie
+- Updated signin, signup, create-profile, passkey, signout routes
+- Legacy cookie still set for transition period — old API routes continue to work
+3. Usage Tracking Infrastructure:
+- Created UsageEvent table in PostgreSQL (pill, event, duration, metadata) - Created /api/usage/ping endpoint — fire-and-forget, never blocks UI
+- Created useUsageTracking hook in workspace page
+- bosly-evolve now reads: pill usage counts (7 days), slow pill detection (>3s average), error patterns
+4. Cookie Banner — Three-Tier Consent:
+- Replaced "Accept All / Necessary Only" with three tiers: - Necessary — always on, session/auth
+- Evolution — on by default, usage patterns for Bosly self-improvement (never leaves server)
+- Attribution — off by default, UTM source/ref only - Bosly-styled dark theme, no emojis
+5. Tracking Cookie Rewrite:
+- Dropped all platform click IDs
+- Now only stores: utm_source, utm_medium, utm_campaign, ref - Changed from httpOnly: false to httpOnly: true
+- Reduced from 30 days to 7 days
+- Gated on bosly_attribution consent cookie
+
+ 6. Onboarding Overhaul — Reducing Bounce:
+- Problem: User bounced during signup. Flow was 3 pages with ~10 steps before seeing the product.
+- Old flow: Landing → Signup → 5-step Key Ceremony → 5-category Onboarding → Workspace
+- New flow: Landing (email + password) → Onboarding (country only) → Workspace — 3 steps, under 30 seconds
+- Key ceremony moved to post-signup: accessible from Settings or the encryption banner in workspace
+- Created EncryptionBanner component — shows in workspace if user has no keys set up, links to /signup/keys, can be dismissed
+- Data sovereignty preserved — encryption is still available, just not blocking entry
+Current State (14 June):
+- Health: healthy (200)
+- Accord: 100% (A), 8/8 principles
+- Audit: 71% (C), honest score, OAuth/SMTP pending
+- Evolve: 77 chat interactions, 60 this week, feedback pipeline live
+- Usage tracking: Table created, hook active on workspace, awaiting first data
+- Secrets: all checks pass, PM2 logs clean
+- Backup: GPG encrypted, running daily at 02:00
+- Disk: 11% of 30GB (down from 13%)
+- Memory: PM2 online
+- Cookies: One auth cookie (uid merged), tracking locked down, three-tier consent banner live
+- Onboarding: 3 steps from ad to workspace
+
+  Session Summary — 17 June 2026
+Problem: Couldn't sign in. Server returned 500 on /api/auth/signin.
+Root Cause: After consolidating secrets into a single .env.production file (June 14), PM2 was starting the Next.js server directly without loading that file. DATABASE_URL was empty, Prisma couldn't connect, every request 500'd. PM2 6.0.14 silently ignored env_file in ecosystem config.
+Fix: Created a wrapper script that sources .env.production with set -a before launching Node. PM2 runs the script, env vars flow through to the child process. No secrets exposed, no hardcoding, survives restarts. Made persistent with pm2 save.
+Secondary: Deploy Pipeline Fixed: Build output structure had changed — standalone directory no longer produced. Deploy now copies .next directly from source to production. Ownership issue fixed.
+ActivePill & ContactsPill — Visual and Functional Update:
+Triggered by user feedback (June 14 session):
+Active pill was showing too many items, no edit/delete/mark-done.
+- ActivePill: Max 3 items visible, scrollable overflow. Added Done, Edit (inline form: title, description, due date, priority), Delete buttons on every task. Fixed type mismatch — removed non-existent fields, now uses actual model fields (dueDate, priority, description).
+- ContactsPill: Same 3-item visible pattern, scrollable.
+- QuickAdd: No longer auto-creates contacts when a name is detected in task text. Only matches existing contacts.
+Chat Route — Response Quality Fixes:
+Triggered by user feedback from June 14:
+"How much will I make this month?" — 3 attempts, all failed
+- "I have not sent an invoice to [client]" — hallucinated invoice data - Contact context loss — knew hourly rate but didn't use it
+
+ Changes to /api/chat/route.ts:
+- Earnings calculation pattern added to system prompt — step-by-step: find contact → get rate → query calendar events → calculate hours → multiply by rate → present with sources cited
+- Max loops increased: Queries now get 5 loops (was 3), disruptions get 6 (was 5)
+- Source verification rule: Must state where data came from, never present numbers without citing specific events/invoices
+- Fallback response: Changed to honest partial result with request for clarification
+Session Summary — 20 June 2026
+In Accord (Trust Centre):
+- Rewrote from engineer-focused "Trust Centre" to universal "In Accord" section
+- Three plain-English promise cards with Bosly accent colours (Emerald, Violet, Gold)
+- Warrant canary status with link to transparency page
+- Deploy timestamp auto-written on every deploy
+- Human attestation system: bosly attest command confirms deploy was authorised
+ActivePill:
+- Fixed Done/Edit/Delete buttons (broken by field name mismatch, missing credentials: "include", silent catch blocks)
+- Added Edit Notes button on calendar events (not just tasks)
+- Event edit form: title, start/end time, description (work notes)
+- Calendar event description now maps through to ActivePill display CalendarPill:
+ 
+ - Edit modal now includes description/notes textarea - Save includes description in API call
+- Description displays on event cards
+Invoicing:
+- Create: InvoiceEditor component with line items (description, qty, unit price, total)
+- Line items: Add/remove rows, auto-calculating totals, stored in InvoiceLineItem table
+- Send: Now sends HTML email with branding (logo, business name, address)
+- Delete: Delete button on all invoice statuses (Draft, Sent, Overdue)
+- Suggestions: Finance pill detects calendar events this month, matches contacts with hourly rates, groups by client, suggests pre-filled invoices
+- Fallback: sendMail now falls back to encryption key when session key unavailable
+Branding Settings:
+- Bank details field behind toggle
+- Logo upload functional
+- Preview shows branding as it appears on invoices
+Deploy Script:
+- Now captures and displays webpack build errors inline
+- Fixed pm2 restart command
+- Auto-writes deploy.json timestamp
+MailKeyAutoUnlock:
+- Removed all debug alerts
+- Changed to use PBKDF2 then AES-CBC stretching for Safari compatibility
+
+ - Fixed to fetch UID from /api/auth/me (cookie is httpOnly)
+ Session Summary — 21 June 2026
+Objective: Transform Bosly Gov into a true Copilot that handles all development work.
+Bosly Gov v2.1 — Unified Command Interface:
+- Consolidated 14 fragmented scripts into 6 conversational commands: deploy, health, diagnose, evolve, build, housekeep
+- Commands wire into each other — health offers housekeep when disk is high, diagnose offers deploy when fixes are done, evolve surfaces patterns that feed diagnose
+Housekeep — System hygiene:
+- Scans for exposed secrets, duplicate scripts, stale PM2 logs, old build backups, warrant canary expiry, pending system reboots
+- Groups by severity (high/medium/low), asks consent per action
+- Cleaned: 2 ecosystem configs with hardcoded secrets shredded, 9 duplicate scripts archived, 112 old PM2 log files deleted, 56-day uptime reboot performed
+Diagnose v5.2 — Multi-source issue detection:
+- Scans 7 sources: PM2 runtime logs, build errors, schema audit, health warnings, audit reports, session transcripts, evolve feedback
+- Presents issues grouped by severity with plain English explanations
+- Auto-fix capability for common issues
+Build v3 — LLM-powered feature builder:
+- Stepped approach: scan codebase → read files + schema → generate patch → consent → apply
+- Uses reasoning model with Prisma schema injection
+
+ - Built three features: unbilled suggestions in FinancePill, expense parsing in invoiceSuggestions, email template fix
+Audit improvements:
+- Fixed audit script to check source directory instead of deploy directory - Score jumped from 71% (C) to 92% (A)
+- Eliminated 20+ false positives from pill-based architecture
+App features deployed:
+- Security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy) in middleware
+- Chat memory persistence via ChatMemory table — remembers last 5 conversations - Chat self-correction — feedback triggers immediate re-query
+- Invoice API with line items support, branding auto-load, PDF download endpoint
+- Chat propose_invoice tool with confirmation flow
+- Email template branding (business name, email, phone from user settings) - Invoice suggestions engine
+- FinancePill wired to suggestions engine
+- Contact API updated to accept hourlyRate, notes, isBusiness
+- Chat JSON repair for malformed LLM queries
+Current state (21 June):
+- Health: 200 OK
+- Audit: 92% (A)
+- Disk: 13% of 30GB
+- PM2: online, 1 instance
+
+ - Secrets: clean
+- Accord: 100% (8/8 principles)
+Key lessons from this session:
+- The mount point is still the invisible enemy — volume unmounts after reboot
+- PM2 env_file is unreliable — wrapper script with set -a is the safe pattern
+- LLM-based builders need schema injection and exact file content to produce correct code
+- Build patch application leaves artefacts that need cleaning - API timeouts on large prompts require payload trimming
+Available for Contract & Freelance Work Specialisations:
+- Encryption & zero-trust architecture
+- AI/LLM integration with tool-calling
+- Full-stack Next.js development
+- Production debugging and system architecture - Email and communication pipeline engineering
+Contact: Available on LinkedIn and Upwork. Remote, immediate start.
